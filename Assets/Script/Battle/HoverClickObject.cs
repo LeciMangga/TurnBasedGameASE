@@ -20,10 +20,8 @@ public class HoverClickObject : MonoBehaviour
 
     void OnMouseDown(){
         if (AllowHoverClickPlayer && isPlayer){
-            Debug.Log("Player Identifier number =" + identifierPlayerInt);
             gameManager.SpawnPanelMoveset(identifierPlayerInt);
         } else if (AllowHoverClickEnemy && (!isPlayer)){
-            Debug.Log("Enemy Identifier number =" + identifierEnemyInt);
             gameManager.DamageCalc(identifierEnemyInt, PlayerUnitAttackIdentifier, AttackType, "Player");
         }
     }

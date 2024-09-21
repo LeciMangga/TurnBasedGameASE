@@ -23,6 +23,9 @@
         public GameObject canvasEmptySwitch2;
         public GameObject canvasEmptySwitch3;
 
+        public GameObject EmptyWarning;
+        public GameObject MidPos;
+
         public bool isCanvasSwitchOn;
 
         int WhatPartyPosSwitched;
@@ -154,58 +157,82 @@
             //search kentang
             Transform PosKentang = SwitchPanel.transform.Find("posKentang");
             TextMeshProUGUI KentangText = PosKentang.transform.Find("KentangText").GetComponent<TextMeshProUGUI>();
-            GameObject KentangGo = Instantiate(playerlist.Kentang, PosKentang);
-            KentangGo.transform.localScale = new Vector3(150f,150f,0f);
-            KentangText.text = playerlist.KentangUnit.Nama;
-            BoxCollider2D KentangCollider = KentangGo.AddComponent<BoxCollider2D>();
-            KentangCollider.size = new Vector2(1f,1f);
-            OnClickSwitch KentangScript = KentangGo.AddComponent<OnClickSwitch>();
-            KentangScript.identifierPlayerClick = "Kentang";
+            if (PlayerPrefs.HasKey("GetKentang")){  
+                GameObject KentangGo = Instantiate(playerlist.Kentang, PosKentang);
+                KentangGo.transform.localScale = new Vector3(50f,50f,0f);
+                KentangText.text = playerlist.KentangUnit.Nama;
+                BoxCollider2D KentangCollider = KentangGo.AddComponent<BoxCollider2D>();
+                KentangCollider.size = new Vector2(1f,1f);
+                OnClickSwitch KentangScript = KentangGo.AddComponent<OnClickSwitch>();
+                KentangScript.identifierPlayerClick = "Kentang";
+            } else {
+                Destroy(PosKentang);
+                Destroy(KentangText);
+            }
             
 
             //search tomat
             Transform PosTomat = SwitchPanel.transform.Find("posTomat");
             TextMeshProUGUI TomatText = PosTomat.transform.Find("TomatText").GetComponent<TextMeshProUGUI>();
-            GameObject TomatGo = Instantiate(playerlist.Tomat, PosTomat);
-            TomatGo.transform.localScale = new Vector3(150f,150f,0f);
-            TomatText.text = playerlist.TomatUnit.Nama;
-            BoxCollider2D TomatCollider = TomatGo.AddComponent<BoxCollider2D>();
-            TomatCollider.size = new Vector2(1f,1f);
-            OnClickSwitch TomatScript = TomatGo.AddComponent<OnClickSwitch>();
-            TomatScript.identifierPlayerClick = "Tomat";
+            if (PlayerPrefs.HasKey("GetTomat")){
+                GameObject TomatGo = Instantiate(playerlist.Tomat, PosTomat);
+                TomatGo.transform.localScale = new Vector3(50f,50f,0f);
+                TomatText.text = playerlist.TomatUnit.Nama;
+                BoxCollider2D TomatCollider = TomatGo.AddComponent<BoxCollider2D>();
+                TomatCollider.size = new Vector2(1f,1f);
+                OnClickSwitch TomatScript = TomatGo.AddComponent<OnClickSwitch>();
+                TomatScript.identifierPlayerClick = "Tomat";
+            } else {
+                TomatText.text = "";
+            }
+            
 
             //search garlic
             Transform PosGarlic = SwitchPanel.transform.Find("posGarlic");
             TextMeshProUGUI GarlicText = PosGarlic.transform.Find("GarlicText").GetComponent<TextMeshProUGUI>();
-            GameObject GarlicGo = Instantiate(playerlist.Garlic, PosGarlic);
-            GarlicGo.transform.localScale = new Vector3(150f,150f,0f);
-            GarlicText.text = playerlist.GarlicUnit.Nama;
-            BoxCollider2D GarlicCollider = GarlicGo.AddComponent<BoxCollider2D>();
-            GarlicCollider.size = new Vector2(1f,1f);
-            OnClickSwitch GarlicScript = GarlicGo.AddComponent<OnClickSwitch>();
-            GarlicScript.identifierPlayerClick = "Garlic";
+            if (PlayerPrefs.HasKey("GetGarlic")){
+                GameObject GarlicGo = Instantiate(playerlist.Garlic, PosGarlic);
+                GarlicGo.transform.localScale = new Vector3(50f,50f,0f);
+                GarlicText.text = playerlist.GarlicUnit.Nama;
+                BoxCollider2D GarlicCollider = GarlicGo.AddComponent<BoxCollider2D>();
+                GarlicCollider.size = new Vector2(1f,1f);
+                OnClickSwitch GarlicScript = GarlicGo.AddComponent<OnClickSwitch>();
+                GarlicScript.identifierPlayerClick = "Garlic";
+            } else {
+                GarlicText.text = "";
+            }            
 
             //search Cabai
             Transform PosCabai = SwitchPanel.transform.Find("posCabai");
             TextMeshProUGUI CabaiText = PosCabai.transform.Find("CabaiText").GetComponent<TextMeshProUGUI>();
-            GameObject CabaiGo = Instantiate(playerlist.Cabai, PosCabai);
-            CabaiGo.transform.localScale = new Vector3(150f,150f,0f);
-            CabaiText.text = playerlist.CabaiUnit.Nama;
-            BoxCollider2D CabaiCollider = CabaiGo.AddComponent<BoxCollider2D>();
-            CabaiCollider.size = new Vector2(1f,1f);
-            OnClickSwitch CabaiScript = CabaiGo.AddComponent<OnClickSwitch>();
-            CabaiScript.identifierPlayerClick = "Cabai";
+            if (PlayerPrefs.HasKey("GetCabai")){
+                GameObject CabaiGo = Instantiate(playerlist.Cabai, PosCabai);
+                CabaiGo.transform.localScale = new Vector3(50f,50f,0f);
+                CabaiText.text = playerlist.CabaiUnit.Nama;
+                BoxCollider2D CabaiCollider = CabaiGo.AddComponent<BoxCollider2D>();
+                CabaiCollider.size = new Vector2(1f,1f);
+                OnClickSwitch CabaiScript = CabaiGo.AddComponent<OnClickSwitch>();
+                CabaiScript.identifierPlayerClick = "Cabai";    
+            } else {
+                CabaiText.text = "";
+            }
+            
 
             //search KembangKol
             Transform PosKembangKol = SwitchPanel.transform.Find("posKembangKol");
             TextMeshProUGUI KembangKolText = PosKembangKol.transform.Find("KembangKolText").GetComponent<TextMeshProUGUI>();
-            GameObject KembangKolGo = Instantiate(playerlist.KembangKol, PosKembangKol);
-            KembangKolGo.transform.localScale = new Vector3(150f,150f,0f);
-            KembangKolText.text = playerlist.KembangKolUnit.Nama;
-            BoxCollider2D KembangKolCollider = KembangKolGo.AddComponent<BoxCollider2D>();
-            KembangKolCollider.size = new Vector2(1f,1f);
-            OnClickSwitch KembangKolScript = KembangKolGo.AddComponent<OnClickSwitch>();
-            KembangKolScript.identifierPlayerClick = "KembangKol";
+            if (PlayerPrefs.HasKey("GetKembangKol")){
+                GameObject KembangKolGo = Instantiate(playerlist.KembangKol, PosKembangKol);
+                KembangKolGo.transform.localScale = new Vector3(50f,50f,0f);
+                KembangKolText.text = playerlist.KembangKolUnit.Nama;
+                BoxCollider2D KembangKolCollider = KembangKolGo.AddComponent<BoxCollider2D>();
+                KembangKolCollider.size = new Vector2(1f,1f);
+                OnClickSwitch KembangKolScript = KembangKolGo.AddComponent<OnClickSwitch>();
+                KembangKolScript.identifierPlayerClick = "KembangKol";    
+            } else {
+                KembangKolText.text = "";
+            }
+            
 
             
         }
@@ -247,7 +274,7 @@
         void Update(){
             if (Input.GetKeyDown(KeyCode.Escape)){
                 SetPosGlobal();
-                SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);
+                SceneManager.LoadScene("LevelSelector", LoadSceneMode.Single);
             }
         }
 
@@ -260,6 +287,26 @@
             }
             if (Pos3Now != null){
                 PlayerPrefs.SetString("Pos3", Pos3Now);
+            }
+        }
+
+        public void onConfirmButton(){
+            partylist.playerListDict();
+            if (partylist.List1() && partylist.List2() == null && partylist.List3() == null){
+                StartCoroutine(EmptyWarningSpawn());
+            } else {
+                SceneManager.LoadScene("Battle", LoadSceneMode.Single);
+            }
+        }
+
+        IEnumerator EmptyWarningSpawn(){
+            GameObject EmptyWarnObj = Instantiate(EmptyWarning, MidPos.transform);
+            Image EmptyWarnImg = EmptyWarnObj.GetComponent<Image>();
+            Color EmptyWarnColor = EmptyWarnImg.color;
+            while (EmptyWarnColor.a > 0){
+                EmptyWarnColor.a -= 0.01f;
+                EmptyWarnImg.color = EmptyWarnColor;
+                yield return new WaitForSeconds(0.05f);
             }
         }
     }

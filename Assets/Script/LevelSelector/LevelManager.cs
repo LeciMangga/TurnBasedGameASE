@@ -8,15 +8,13 @@ public class LevelManager : MonoBehaviour
 {
     public GameObject PanelLevel;
     public GameObject potatoPrefab;
-    public GameObject PanelInfoStart;
-    public GameObject PanelInfo1;
-    public GameObject PanelInfo2;
-    public GameObject PanelInfo3;
-    public GameObject PanelInfo4;
-    public GameObject PanelInfo5;
+    public GameObject[] PanelInfo;
+
+    public GameObject LockLevel;
 
     private GameObject potato;
     private Vector3 potatoPos;
+    private int potatoAtLevel;
     private Transform potatoTr;
 
     private int levelsUnlocked;
@@ -25,56 +23,62 @@ public class LevelManager : MonoBehaviour
     private GameObject lastPanelInfo;
     private GameObject spawnPanelInfo;
 
+    
+    public AudioSource ButtonClickSFX;
+
+
+    Vector3[] LevelPos;
+    Button[] HidButton;
+
     void Start()
     {
+        LevelPos = new Vector3[6];
+        HidButton = new Button[6];
         //spawning levels
         GameObject Levels = Instantiate(PanelLevel);
         //find start
         Transform Start = Levels.transform.Find("start");
-        Button StartHidButton = Start.transform.Find("buttonHidStart").GetComponent<Button>();
-        Vector3 StartPos = Start.position;
+        HidButton[0] = Start.transform.Find("buttonHidStart").GetComponent<Button>();
+        LevelPos[0] = Start.position;
         //find level1
         Transform Level1 = Levels.transform.Find("level1");
-        Transform Level1Inside = Level1.transform.Find("level1i");
-        Button Lv1HidButton = Level1.transform.Find("buttonHidLv1").GetComponent<Button>();
-        Vector3 Level1Pos = Level1.position;
+        HidButton[1] = Level1.transform.Find("buttonHidLv1").GetComponent<Button>();
+        LevelPos[1] = Level1.position;
         //find level2
         Transform Level2 = Levels.transform.Find("level2");
-        Transform Level2Inside = Level2.transform.Find("level2i");
-        Button Lv2HidButton = Level2.transform.Find("buttonHidLv2").GetComponent<Button>();
-        Vector3 Level2Pos = Level2.position;
+        HidButton[2] = Level2.transform.Find("buttonHidLv2").GetComponent<Button>();
+        LevelPos[2] = Level2.position;
         //find level3
         Transform Level3 = Levels.transform.Find("level3");
-        Transform Level3Inside = Level3.transform.Find("level3i");
-        Button Lv3HidButton = Level3.transform.Find("buttonHidLv3").GetComponent<Button>();
-        Vector3 Level3Pos = Level3.position;
+        HidButton[3] = Level3.transform.Find("buttonHidLv3").GetComponent<Button>();
+        LevelPos[3] = Level3.position;
         //find level4
         Transform Level4 = Levels.transform.Find("level4");
-        Transform Level4Inside = Level4.transform.Find("level4i");
-        Button Lv4HidButton = Level4.transform.Find("buttonHidLv4").GetComponent<Button>();
-        Vector3 Level4Pos = Level4.position;
+        HidButton[4] = Level4.transform.Find("buttonHidLv4").GetComponent<Button>();
+        LevelPos[4] = Level4.position;
         //find level5
         Transform Level5 = Levels.transform.Find("level5");
-        Transform Level5Inside = Level5.transform.Find("level5i");
-        Button Lv5HidButton = Level5.transform.Find("buttonHidLv5").GetComponent<Button>();
-        Vector3 Level5Pos = Level5.position;
+        HidButton[5] = Level5.transform.Find("buttonHidLv5").GetComponent<Button>();
+        LevelPos[5] = Level5.position;
 
-        //variabel titik2nya
-        Vector3 ujungKiriAtasPos = Level4Pos;
-        ujungKiriAtasPos.y = 1005;
+        EnableAllButton();
 
-        StartHidButton.onClick.AddListener(ButtonClickMovePotatoStart);
-        Lv1HidButton.onClick.AddListener(ButtonClickMovePotatoLv1);
-        Lv2HidButton.onClick.AddListener(ButtonClickMovePotatoLv2);
-        Lv3HidButton.onClick.AddListener(ButtonClickMovePotatoLv3);
-        Lv4HidButton.onClick.AddListener(ButtonClickMovePotatoLv4);
-        Lv5HidButton.onClick.AddListener(ButtonClickMovePotatoLv5);
+        for (int i = 0; i<=5; i++){
+            int index = i; 
+            HidButton[i].onClick.AddListener(() => ButtonOnClickLevel(index));
+        }
+
+        void ButtonOnClickLevel(int i){
+            ButtonClickSFX.Play();
+            GetPotatoPos();
+            StartCoroutine(movePotato(potatoPos, LevelPos[i], i));
+        }
 
         //spawning the potato
         Vector3 spawnPos;
-        spawnPos.x = StartPos.x;
-        spawnPos.y = StartPos.y;
-        spawnPos.z = StartPos.z - 100;
+        spawnPos.x = LevelPos[0].x;
+        spawnPos.y = LevelPos[0].y;
+        spawnPos.z = LevelPos[0].z - 100;
         potato = Instantiate(potatoPrefab, spawnPos, Quaternion.identity);
         potatoTr = potato.GetComponent<Transform>();
         GetPotatoPos();
@@ -85,25 +89,32 @@ public class LevelManager : MonoBehaviour
         void GetPotatoPos(){
             potatoPos = potatoTr.position;
             Debug.Log("Pos Potato now = " + potatoPos );
+            for (int i = 0; i <=5 ; i++){
+                if (potatoPos == LevelPos[i]){
+                    potatoAtLevel = i;
+                }
+            }
         }
 
         IEnumerator movePotato(Vector3 nowPos, Vector3 shouldPos,int Lvl){
             StartCoroutine(DisableAllButton());
             Destroy(lastPanelInfo);
-            if ((nowPos.y == 1005) && (shouldPos.y == 863)){
-                Debug.Log("ke ujung kiri atas");
-                yield return StartCoroutine(MovePotatoCoroutine(nowPos,ujungKiriAtasPos));
-                yield return StartCoroutine(MovePotatoCoroutine(ujungKiriAtasPos, Level4Pos));
-                StartCoroutine(MovePotatoCoroutine(Level4Pos,shouldPos));
-            } else if (nowPos.y == shouldPos.y){
-                StartCoroutine(MovePotatoCoroutine(nowPos,shouldPos));
-            } else if (nowPos.y == 863 && shouldPos.y == 1005 ){
-                Debug.Log("harus ke lv4 dulu");
-                yield return StartCoroutine(MovePotatoCoroutine(nowPos,Level4Pos));
-                yield return StartCoroutine(MovePotatoCoroutine(Level4Pos,ujungKiriAtasPos));
-                StartCoroutine(MovePotatoCoroutine(ujungKiriAtasPos,shouldPos));
+            if (nowPos != shouldPos){
+                if (potatoAtLevel > Lvl){
+                    while (potatoAtLevel > Lvl){
+                        Debug.Log("go to " + (potatoAtLevel - 1));
+                        StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel - 1]));
+                        potatoAtLevel -= 1;
+                    }
+                } else if (potatoAtLevel < Lvl){
+                    while (potatoAtLevel < Lvl){
+                        StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel + 1]));
+                        potatoAtLevel += 1;
+                    }
+                }
             }
             StartCoroutine(spawnPanelInfoCoroutine(Lvl));
+            yield return null;
         }
 
         IEnumerator MovePotatoCoroutine(Vector3 nowPos, Vector3 shouldPos){
@@ -119,103 +130,65 @@ public class LevelManager : MonoBehaviour
         }
 
         IEnumerator spawnPanelInfoCoroutine(int lvl){
+            Debug.Log("spawning panel = " + lvl);
             Destroy(lastPanelInfo);
             yield return new WaitForSeconds(2);
-            lastPanelInfo = Instantiate(spawnPanelInfo);
-            Debug.Log("spawn = " + spawnPanelInfo);
-            Debug.Log("last = " + lastPanelInfo);
+            lastPanelInfo = Instantiate(PanelInfo[lvl]);
+            Transform PanelInfoLvl = lastPanelInfo.transform.Find("Level"+lvl+"Panel");
             if (lvl != 0){
-                Transform PanelInfoLvl = lastPanelInfo.transform.Find("Level"+lvl+"Panel");
                 Button ButtonStartPanelInfo = PanelInfoLvl.transform.Find("ButtonLv"+lvl).GetComponent<Button>();
                 onLevel = lvl;
                 ButtonStartPanelInfo.onClick.AddListener(OnButtonLevel);
+                
+            }
+            Button BackButtonPanelInfo = PanelInfoLvl.transform.Find("Back").GetComponent<Button>();
+            BackButtonPanelInfo.onClick.AddListener(() => OnBackButtonPanelInfo(lvl));
+            void OnBackButtonPanelInfo(int i){
+                ButtonClickSFX.Play();
+                Destroy(lastPanelInfo);
             }
             StartCoroutine(EnableAllButton());
         }
-
-        void ButtonClickMovePotatoStart(){
-            Debug.Log("Button Clicked");
-            GetPotatoPos();
-            StartCoroutine(movePotato(potatoPos, StartPos,0));
-            spawnPanelInfo = PanelInfoStart;
-        }
-        void ButtonClickMovePotatoLv1(){
-            Debug.Log("Button Clicked");
-            GetPotatoPos();
-            StartCoroutine(movePotato(potatoPos, Level1Pos,1));
-            spawnPanelInfo = PanelInfo1;
-        }
-        void ButtonClickMovePotatoLv2(){
-            Debug.Log("Button Clicked");
-            GetPotatoPos();
-            StartCoroutine(movePotato(potatoPos, Level2Pos,2));
-            spawnPanelInfo = PanelInfo2;
-        }
-        void ButtonClickMovePotatoLv3(){
-            Debug.Log("Button Clicked");
-            GetPotatoPos();
-            StartCoroutine(movePotato(potatoPos, Level3Pos,3));
-            spawnPanelInfo = PanelInfo3;
-        }
-        void ButtonClickMovePotatoLv4(){
-            GetPotatoPos();
-            Debug.Log("Button Clicked");
-            StartCoroutine(movePotato(potatoPos, Level4Pos,4));
-            spawnPanelInfo = PanelInfo4;
-        }
-        void ButtonClickMovePotatoLv5(){
-            GetPotatoPos();
-            Debug.Log("Button Clicked");
-            StartCoroutine(movePotato(potatoPos, Level5Pos,5));
-            spawnPanelInfo = PanelInfo5;
-        }
-
         //default levels
         levelsUnlocked = PlayerPrefs.GetInt("levelsUnlocked",1);
         PlayerPrefs.Save();
 
-        Lv2HidButton.interactable = false;
-        Lv3HidButton.interactable = false;
-        Lv4HidButton.interactable = false;
-        Lv5HidButton.interactable = false;
+        for (int i = 2 ; i<=5; i++){
+            HidButton[i].interactable = false;
+        }
 
         IEnumerator DisableAllButton(){
             yield return new WaitForSeconds(0.1f);
-            StartHidButton.interactable = false;
-            Lv1HidButton.interactable = false;
-            Lv2HidButton.interactable = false;
-            Lv3HidButton.interactable = false;
-            Lv4HidButton.interactable = false;
-            Lv5HidButton.interactable = false;
+            for (int i = 0 ; i<=5; i++){
+                HidButton[i].interactable = false;
+            }
             
             Debug.Log("disabling buttons");
         }
 
         
         IEnumerator EnableAllButton(){
-            yield return new WaitForSeconds(0.1f);
-            StartHidButton.interactable = true;
-            Lv1HidButton.interactable = true;
-            for (int i = 1; levelsUnlocked >= i; i++){
-                if (i==2){
-                    Lv2HidButton.interactable = true;
-                } else if (i==3){
-                    Lv3HidButton.interactable = true;
-                } else if (i==4){
-                    Lv4HidButton.interactable = true;
-                } else if (i==5){
-                    Lv5HidButton.interactable = true;
+            yield return null;
+            HidButton[0].interactable = true;
+            for (int i = 1; 5 >= i; i++){
+                if (levelsUnlocked >= i){
+                    HidButton[i].interactable = true;
+                } else {
+                    //Instantiate(LockLevel, HidButton[i].transform);
                 }
             }
             Debug.Log("enabling buttons");
         }
         void OnButtonLevel(){
+            ButtonClickSFX.Play();
             PlayerPrefs.SetInt("onLevel",onLevel);
-            SceneManager.LoadScene("Battle", LoadSceneMode.Single);
+            SceneManager.LoadScene("PartySelector", LoadSceneMode.Single);
         }
+        
     }
     
     public void OnBackButtonClick(){
+        ButtonClickSFX.Play();
         SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);  
     }
 
