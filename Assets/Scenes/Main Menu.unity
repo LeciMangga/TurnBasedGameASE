@@ -899,7 +899,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TITLE GAME
+  m_text: KITCHEN CHAOS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e5b5d37348f515e4ebc64fc5a0e40c21, type: 2}
   m_sharedMaterial: {fileID: 6427614911110635716, guid: e5b5d37348f515e4ebc64fc5a0e40c21, type: 2}
@@ -1637,7 +1637,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

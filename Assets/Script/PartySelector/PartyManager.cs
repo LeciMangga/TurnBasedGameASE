@@ -162,7 +162,7 @@
                 KentangGo.transform.localScale = new Vector3(50f,50f,0f);
                 KentangText.text = playerlist.KentangUnit.Nama;
                 BoxCollider2D KentangCollider = KentangGo.AddComponent<BoxCollider2D>();
-                KentangCollider.size = new Vector2(1f,1f);
+                KentangCollider.size = new Vector2(2f,2f);
                 OnClickSwitch KentangScript = KentangGo.AddComponent<OnClickSwitch>();
                 KentangScript.identifierPlayerClick = "Kentang";
             } else {
@@ -179,7 +179,7 @@
                 TomatGo.transform.localScale = new Vector3(50f,50f,0f);
                 TomatText.text = playerlist.TomatUnit.Nama;
                 BoxCollider2D TomatCollider = TomatGo.AddComponent<BoxCollider2D>();
-                TomatCollider.size = new Vector2(1f,1f);
+                TomatCollider.size = new Vector2(2f,2f);
                 OnClickSwitch TomatScript = TomatGo.AddComponent<OnClickSwitch>();
                 TomatScript.identifierPlayerClick = "Tomat";
             } else {
@@ -195,7 +195,7 @@
                 GarlicGo.transform.localScale = new Vector3(50f,50f,0f);
                 GarlicText.text = playerlist.GarlicUnit.Nama;
                 BoxCollider2D GarlicCollider = GarlicGo.AddComponent<BoxCollider2D>();
-                GarlicCollider.size = new Vector2(1f,1f);
+                GarlicCollider.size = new Vector2(2f,2f);
                 OnClickSwitch GarlicScript = GarlicGo.AddComponent<OnClickSwitch>();
                 GarlicScript.identifierPlayerClick = "Garlic";
             } else {
@@ -210,7 +210,7 @@
                 CabaiGo.transform.localScale = new Vector3(50f,50f,0f);
                 CabaiText.text = playerlist.CabaiUnit.Nama;
                 BoxCollider2D CabaiCollider = CabaiGo.AddComponent<BoxCollider2D>();
-                CabaiCollider.size = new Vector2(1f,1f);
+                CabaiCollider.size = new Vector2(2f,2f);
                 OnClickSwitch CabaiScript = CabaiGo.AddComponent<OnClickSwitch>();
                 CabaiScript.identifierPlayerClick = "Cabai";    
             } else {
@@ -226,7 +226,7 @@
                 KembangKolGo.transform.localScale = new Vector3(50f,50f,0f);
                 KembangKolText.text = playerlist.KembangKolUnit.Nama;
                 BoxCollider2D KembangKolCollider = KembangKolGo.AddComponent<BoxCollider2D>();
-                KembangKolCollider.size = new Vector2(1f,1f);
+                KembangKolCollider.size = new Vector2(2f,2f);
                 OnClickSwitch KembangKolScript = KembangKolGo.AddComponent<OnClickSwitch>();
                 KembangKolScript.identifierPlayerClick = "KembangKol";    
             } else {
@@ -274,7 +274,8 @@
         void Update(){
             if (Input.GetKeyDown(KeyCode.Escape)){
                 SetPosGlobal();
-                SceneManager.LoadScene("LevelSelector", LoadSceneMode.Single);
+                PlayerPrefs.SetString("LoadStrIdentifier", "LevelSelector");
+                SceneManager.LoadScene("Loading Screen", LoadSceneMode.Single);
             }
         }
 
@@ -292,10 +293,12 @@
 
         public void onConfirmButton(){
             partylist.playerListDict();
-            if (partylist.List1() && partylist.List2() == null && partylist.List3() == null){
+            if (partylist.List1() == null && partylist.List2() == null && partylist.List3() == null){
                 StartCoroutine(EmptyWarningSpawn());
             } else {
-                SceneManager.LoadScene("Battle", LoadSceneMode.Single);
+                SetPosGlobal();
+                PlayerPrefs.SetString("LoadStrIdentifier", "Battle");
+                SceneManager.LoadScene("Loading Screen", LoadSceneMode.Single);
             }
         }
 

@@ -21,13 +21,11 @@ public class MainMenuSettings : MonoBehaviour
         if (!(PlayerPrefs.HasKey("GetKentang"))){
             PlayerPrefs.SetInt("GetKentang",1);
         }
-        if (!(PlayerPrefs.HasKey("MaxStage"))){
-            PlayerPrefs.SetInt("MaxStage",1);
-        }
     }
     public void OnPlayButton(){
         ButtonClickSFX.Play();
-        SceneManager.LoadScene("LevelSelector", LoadSceneMode.Single);
+        PlayerPrefs.SetString("LoadStrIdentifier","LevelSelector");
+        SceneManager.LoadScene("Loading Screen", LoadSceneMode.Single);
     }
     public void OnCreditButton(){
         ButtonClickSFX.Play();

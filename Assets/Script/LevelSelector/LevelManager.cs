@@ -30,8 +30,14 @@ public class LevelManager : MonoBehaviour
     Vector3[] LevelPos;
     Button[] HidButton;
 
+
+    bool hasSpawnedLockObj = false;
+
     void Start()
-    {
+    {   
+        
+        levelsUnlocked = PlayerPrefs.GetInt("levelsUnlocked",1);
+        PlayerPrefs.Save();
         LevelPos = new Vector3[6];
         HidButton = new Button[6];
         //spawning levels
@@ -60,8 +66,22 @@ public class LevelManager : MonoBehaviour
         Transform Level5 = Levels.transform.Find("level5");
         HidButton[5] = Level5.transform.Find("buttonHidLv5").GetComponent<Button>();
         LevelPos[5] = Level5.position;
+        //find jalur
+        Transform[] JalurOff = new Transform[6];
+        Transform[] JalurOn = new Transform[6];
+        for (int i = 1; i<=5 ; i++){
+            JalurOff[i] = Levels.transform.Find("JalurOff"+i);
+            JalurOn[i] = Levels.transform.Find("JalurOn"+i);
+        }
+        for (int i =1 ; i<=5; i++){
+            if (i<=levelsUnlocked){
+                Destroy(JalurOff[i].gameObject);
+            } else {
+                Destroy(JalurOn[i].gameObject);
+            }
+        }
 
-        EnableAllButton();
+        StartCoroutine(EnableAllButton());
 
         for (int i = 0; i<=5; i++){
             int index = i; 
@@ -78,14 +98,15 @@ public class LevelManager : MonoBehaviour
         Vector3 spawnPos;
         spawnPos.x = LevelPos[0].x;
         spawnPos.y = LevelPos[0].y;
-        spawnPos.z = LevelPos[0].z - 100;
+        spawnPos.z = LevelPos[0].z - 200;
         potato = Instantiate(potatoPrefab, spawnPos, Quaternion.identity);
+        potato.transform.localScale = new Vector2(20f,20f);
         potatoTr = potato.GetComponent<Transform>();
         GetPotatoPos();
 
         //enabling button
-        EnableAllButton();
-        
+        StartCoroutine(EnableAllButton());
+    
         void GetPotatoPos(){
             potatoPos = potatoTr.position;
             Debug.Log("Pos Potato now = " + potatoPos );
@@ -103,12 +124,12 @@ public class LevelManager : MonoBehaviour
                 if (potatoAtLevel > Lvl){
                     while (potatoAtLevel > Lvl){
                         Debug.Log("go to " + (potatoAtLevel - 1));
-                        StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel - 1]));
+                        yield return StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel - 1]));
                         potatoAtLevel -= 1;
                     }
                 } else if (potatoAtLevel < Lvl){
                     while (potatoAtLevel < Lvl){
-                        StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel + 1]));
+                        yield return StartCoroutine(MovePotatoCoroutine(LevelPos[potatoAtLevel], LevelPos[potatoAtLevel + 1]));
                         potatoAtLevel += 1;
                     }
                 }
@@ -149,9 +170,7 @@ public class LevelManager : MonoBehaviour
             }
             StartCoroutine(EnableAllButton());
         }
-        //default levels
-        levelsUnlocked = PlayerPrefs.GetInt("levelsUnlocked",1);
-        PlayerPrefs.Save();
+        
 
         for (int i = 2 ; i<=5; i++){
             HidButton[i].interactable = false;
@@ -174,22 +193,28 @@ public class LevelManager : MonoBehaviour
                 if (levelsUnlocked >= i){
                     HidButton[i].interactable = true;
                 } else {
-                    //Instantiate(LockLevel, HidButton[i].transform);
+                    if (!hasSpawnedLockObj){
+                        Instantiate(LockLevel, HidButton[i].transform);
+                    }
                 }
             }
+            hasSpawnedLockObj = true;
             Debug.Log("enabling buttons");
         }
         void OnButtonLevel(){
             ButtonClickSFX.Play();
             PlayerPrefs.SetInt("onLevel",onLevel);
-            SceneManager.LoadScene("PartySelector", LoadSceneMode.Single);
+            PlayerPrefs.SetString("LoadStrIdentifier", "PartySelector");
+            SceneManager.LoadScene("Loading Screen", LoadSceneMode.Single);
         }
         
     }
     
     public void OnBackButtonClick(){
         ButtonClickSFX.Play();
-        SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);  
+        
+        PlayerPrefs.SetString("LoadStrIdentifier", "Main Menu");
+        SceneManager.LoadScene("Loading Screen", LoadSceneMode.Single);
     }
 
     void Update(){

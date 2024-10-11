@@ -59,6 +59,9 @@ public class GameManager : MonoBehaviour
 
     void Start(){
         partylist.playerListDict();
+        Debug.Log(partylist.List1());
+        Debug.Log(partylist.List2());
+        Debug.Log(partylist.List3());
         PlayerPrefab = new GameObject[] {partylist.List1(), partylist.List2(), partylist.List3()};
         EnemyPrefab = new GameObject[] {enemylist.List1(), enemylist.List2(), enemylist.List3()};
         PlayerUnit = new Unit[3];
@@ -106,8 +109,10 @@ public class GameManager : MonoBehaviour
                     PlayerUnit[i] = PlayerObj[i].GetComponent<Unit>();
                     PlayerNama.text = PlayerUnit[i].Nama;
 
+                    SetPlayerLevelAndXP(i);
+
                     BoxCollider2D PlayerCollider = PlayerObj[i].AddComponent<BoxCollider2D>();
-                    PlayerCollider.size = new Vector2(1f,1f);
+                    PlayerCollider.size = new Vector2(2f,2f);
                     PlayerHoverScript[i] = PlayerObj[i].AddComponent<HoverClickObject>();
                     PlayerHoverScript[i].identifierPlayerInt = i;
                     PlayerHoverScript[i].AllowHoverClickPlayer = false;
@@ -121,7 +126,7 @@ public class GameManager : MonoBehaviour
                     EnemyObj[i].transform.localScale = new Vector3(50f,50f,0f);
                     EnemyHUD[i] = Instantiate(HudObj, PosEnemy[i].transform);
                     RectTransform EnemyHudRectTransform = EnemyHUD[i].GetComponent<RectTransform>();
-                    EnemyHudRectTransform.anchoredPosition = new Vector2(25f,170f);
+                    EnemyHudRectTransform.anchoredPosition = new Vector2(25f,240f);
                     TextMeshProUGUI EnemyNama = EnemyHUD[i].GetComponent<TextMeshProUGUI>();
                     EnemyHpSlider[i] = EnemyHUD[i].transform.Find("SliderHp").GetComponent<Slider>();
                     EnemyUnit[i] = EnemyObj[i].GetComponent<Unit>();
@@ -129,7 +134,7 @@ public class GameManager : MonoBehaviour
 
                     
                     BoxCollider2D EnemyCollider = EnemyObj[i].AddComponent<BoxCollider2D>();
-                    EnemyCollider.size = new Vector2(1f,1f);
+                    EnemyCollider.size = new Vector2(2f,2f);
                     EnemyHoverScript[i] = EnemyObj[i].AddComponent<HoverClickObject>();
                     EnemyHoverScript[i].identifierEnemyInt = i;
                     EnemyHoverScript[i].AllowHoverClickEnemy = false;
@@ -143,6 +148,11 @@ public class GameManager : MonoBehaviour
 
     }
 
+    void SetPlayerLevelAndXP(int identifier){
+        PlayerUnit[identifier].Level = PlayerPrefs.GetInt("Level"+PlayerUnit[identifier].Nama , 1);
+        PlayerUnit[identifier].exp = PlayerPrefs.GetInt("XP"+PlayerUnit[identifier].Nama , 1);
+    }
+
     IEnumerator PlayerTurnBattle(){
         yield return new WaitForSeconds(1);
         battleState = BattleStateOn.PlayerTurn;
@@ -152,8 +162,6 @@ public class GameManager : MonoBehaviour
             disableEnemyHover();
         }
         turnCount += 1;
-        Debug.Log("player total def " + PlayerUnit[0].Total.Defense + "at turn " + turnCount);
-        Debug.Log("player total att " + PlayerUnit[0].Total.Attack + "at turn " + turnCount);
     }
 
     void allowPlayerHover(){
@@ -209,7 +217,7 @@ public class GameManager : MonoBehaviour
         if (PlayerUnit[identifierInt].moveName != ""){
             PanelMovesetSpecialText.text = PlayerUnit[identifierInt].moveName;
         } else {
-            Destroy(PanelMovesetSpecialButton);
+            Destroy(PanelMovesetSpecialButton.gameObject);
         }
 
         void BackButton(){
@@ -261,6 +269,7 @@ public class GameManager : MonoBehaviour
             //check weakness
             float WeaknessModifier;            
             WeaknessModifier = CheckTypePower(DamagedUnit.type, AttackerUnit.type);
+            DialogText.text = AttackerUnit.Nama + " use " + AttackerUnit.type;
             if (AttackerUnit.type == "Strike"){
                 StrikeSound.Play();
             } else if (AttackerUnit.type == "Slash"){
@@ -300,9 +309,9 @@ public class GameManager : MonoBehaviour
             } else if (PlayerUnit[AttackerUnitIdentifier].moveName == "Stink"){
                 for (int i = 0; i<3; i++){
                     if (EnemyObj[i] != null){
-                        EnemyUnit[i].Modified[EnemyBuffNerfCount[i]].Defense += (EnemyUnit[i].Total.Defense/2)*(-1);
-                        EnemyUnit[i].Modified[EnemyBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                         EnemyBuffNerfCount[i] += 1;
+                        EnemyUnit[i].Modified[EnemyBuffNerfCount[i]].Defense = (EnemyUnit[i].Total.Defense/2)*(-1);
+                        EnemyUnit[i].Modified[EnemyBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                     }
                     yield return new WaitForSeconds(0.5f);
                     DialogText.text = "All Enemy Defense down";
@@ -310,9 +319,9 @@ public class GameManager : MonoBehaviour
             } else if (PlayerUnit[AttackerUnitIdentifier].moveName == "Burning Hot"){
                 for (int i = 0; i<3; i++){
                     if (PlayerObj[i] != null){
-                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].Attack += PlayerUnit[i].Attack;
-                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                         PlayerBuffNerfCount[i] += 1;
+                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].Attack = PlayerUnit[i].Attack;
+                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                     }
                     yield return new WaitForSeconds(0.5f);
                     DialogText.text = "All Player Attack up";
@@ -334,9 +343,9 @@ public class GameManager : MonoBehaviour
             if (EnemyUnit[AttackerUnitIdentifier].moveName == "Slam"){
                 for (int i = 0; i<3; i++){
                     if (PlayerObj[i] != null){
-                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].Attack -= 3;
-                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                         PlayerBuffNerfCount[i] += 1;
+                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].Attack = -3;
+                        PlayerUnit[i].Modified[PlayerBuffNerfCount[i]].TurnEndBuffNerf = turnCount + 2;
                         if (PlayerUnit[i].Total.Attack < 0){
                             PlayerUnit[i].Total.Attack = 0;
                         }
@@ -362,8 +371,8 @@ public class GameManager : MonoBehaviour
                 while (PlayerObj[x] == null){
                     x = Random.Range(0,2);
                 }
-                PlayerUnit[x].Modified[PlayerBuffNerfCount[x]].Defense -= 10;
                 PlayerBuffNerfCount[x] += 1;
+                PlayerUnit[x].Modified[PlayerBuffNerfCount[x]].Defense = -10;
                 yield return new WaitForSeconds(0.5f);
                 DialogText.text = PlayerUnit[AttackerUnitIdentifier].Nama + " Defense down";
             } else if(EnemyUnit[AttackerUnitIdentifier].moveName == "Dip Fry"){
@@ -397,26 +406,53 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator ReduceHp(float DamageOutput, int AttackerUnitIdentifier, int DamagedUnitIdentifier, string WhoAttack){
+        int DamagedUnitIdentifier2 = 0;
         yield return new WaitForSeconds(1.5f);
         if (WhoAttack == "Player"){
             DialogText.text = "You Deal " + (int)DamageOutput + " to " + EnemyUnit[DamagedUnitIdentifier].Nama;
-            if (!EnemyUnit[DamagedUnitIdentifier].Effect.isShield){
-                for (int ShouldHp = EnemyUnit[DamagedUnitIdentifier].CurrentHp - (int)DamageOutput; EnemyUnit[DamagedUnitIdentifier].CurrentHp > ShouldHp; EnemyUnit[DamagedUnitIdentifier].CurrentHp--){
-                    SetHpBar(EnemyHpSlider[DamagedUnitIdentifier], EnemyUnit[DamagedUnitIdentifier].MaxHp, EnemyUnit[DamagedUnitIdentifier].CurrentHp);
-                    yield return new WaitForSeconds(0.01f);
-                }
+            if (PlayerUnit[AttackerUnitIdentifier].Nama != "Kentang"){
+                yield return StartCoroutine(CheckShieldAndReduceHp());
             } else {
-                EnemyUnit[DamagedUnitIdentifier].Effect.isShield = false;
-                DialogText.text = "Enemy Shielded";
-                yield return new WaitForSeconds(1);
-                DialogText.text = "";
-                yield return new WaitForSeconds(0.5f);
-                DialogText.text = "Enemy shield broke";
+                //plot armor sang mc si Kentang
+                yield return StartCoroutine(CheckShieldAndReduceHp());
+                int randomUnitAttacked;
+                if (DamagedUnitIdentifier == 1){
+                    randomUnitAttacked = 2;
+                } else if (DamagedUnitIdentifier == 2) {
+                    randomUnitAttacked = 3;
+                } else {
+                    randomUnitAttacked = 1;
+                }
+                DamagedUnitIdentifier2 = DamagedUnitIdentifier;
+                DamagedUnitIdentifier = randomUnitAttacked;
+                yield return StartCoroutine(CheckShieldAndReduceHp());
+            }
+
+            IEnumerator CheckShieldAndReduceHp(){
+                if (!EnemyUnit[DamagedUnitIdentifier].Effect.isShield){
+                    for (int ShouldHp = EnemyUnit[DamagedUnitIdentifier].CurrentHp - (int)DamageOutput; EnemyUnit[DamagedUnitIdentifier].CurrentHp > ShouldHp; EnemyUnit[DamagedUnitIdentifier].CurrentHp--){
+                            SetHpBar(EnemyHpSlider[DamagedUnitIdentifier], EnemyUnit[DamagedUnitIdentifier].MaxHp, EnemyUnit[DamagedUnitIdentifier].CurrentHp);
+                            yield return new WaitForSeconds(0.01f);
+                        }
+                } else {
+                    EnemyUnit[DamagedUnitIdentifier].Effect.isShield = false;
+                    DialogText.text = "Enemy Shielded";
+                    yield return new WaitForSeconds(1);
+                    DialogText.text = "";
+                    yield return new WaitForSeconds(0.5f);
+                    DialogText.text = "Enemy shield broke";
+                }
             }
             
+            
             yield return new WaitForSeconds(1);
-            if (EnemyUnit[DamagedUnitIdentifier].CurrentHp <= 0){
+            if (EnemyUnit[DamagedUnitIdentifier].CurrentHp <= 0 && EnemyObj[DamagedUnitIdentifier] != null){
                 StartCoroutine(UnitDie(DamagedUnitIdentifier, "Enemy"));
+            }
+            if (PlayerUnit[AttackerUnitIdentifier].Nama == "Kentang"){
+                if (EnemyUnit[DamagedUnitIdentifier2].CurrentHp <= 0 && EnemyObj[DamagedUnitIdentifier2] != null){
+                    StartCoroutine(UnitDie(DamagedUnitIdentifier2, "Enemy"));
+                }
             }
             if (CheckAlive(false)){
                 StartCoroutine(EnemyTurn());
@@ -511,11 +547,15 @@ public class GameManager : MonoBehaviour
         bool returnValue = false;
         if (isPlayer){
             for (int i=0 ; i<3; i++){
-                returnValue = returnValue || (PlayerUnit[i].CurrentHp > 0);
+                if (PlayerObj[i] != null){
+                    returnValue = returnValue || (PlayerUnit[i].CurrentHp > 0);
+                }
             }
         } else {
             for (int i=0 ; i<3; i++){
-                returnValue = returnValue || (EnemyUnit[i].CurrentHp > 0);
+                if (EnemyObj[i] != null){
+                    returnValue = returnValue || (EnemyUnit[i].CurrentHp > 0);
+                }
             }
         }
         return returnValue;
@@ -528,10 +568,12 @@ public class GameManager : MonoBehaviour
         if (isWin){
             battleState = BattleStateOn.Won;
             Debug.Log("Won");
+            VictorySound.Play();
             yield return StartCoroutine(resultPanel(true));
         } else {
             battleState = BattleStateOn.Lose;
             Debug.Log("Lose");
+            DefeatSound.Play();
             yield return StartCoroutine(resultPanel(false));
         }
     }
@@ -551,20 +593,26 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator resultPanel(bool isWin){
+        int LevelNow = PlayerPrefs.GetInt("onLevel");
         int[] LevelXp = {800,1000,1500,2500,5000};
+
         GameObject PanelResultObj = Instantiate(PanelResult, PosPanelMoveset.transform);
         TextMeshProUGUI PanelResultText = PanelResultObj.transform.Find("ResultText").GetComponent<TextMeshProUGUI>();
         Transform[] PanelObjPos = new Transform[3];
         Slider[] PanelObjSliderXP = new Slider[3];
+        TextMeshProUGUI[] PanelObjLevelText = new TextMeshProUGUI[3];
+        TextMeshProUGUI[] PanelObjXpText = new TextMeshProUGUI[3];
         Button LevelSelectButton = PanelResultObj.transform.Find("LevelSelButton").GetComponent<Button>();
         LevelSelectButton.onClick.AddListener(LevelSelectOnButton);
-        Button NextButton = PanelResultObj.transform.Find("LevelSelButton").GetComponent<Button>();
-        NextButton.onClick.AddListener(NextLevelOnButton);
+        Button NextButton = PanelResultObj.transform.Find("NextButton").GetComponent<Button>();
+        NextButton.onClick.AddListener(() => NextLevelOnButton(LevelNow));
+
         for (int i = 0; i<3; i++) {
             string FindPlayerPos = "PlayerPos" + (i+1);
-            Debug.Log(FindPlayerPos);
             PanelObjPos[i] = PanelResultObj.transform.Find(FindPlayerPos);
             PanelObjSliderXP[i] = PanelObjPos[i].transform.Find("XPSlider").GetComponent<Slider>();
+            PanelObjLevelText[i] = PanelObjPos[i].transform.Find("Level").GetComponent<TextMeshProUGUI>();
+            PanelObjXpText[i] = PanelObjPos[i].transform.Find("Xp").GetComponent<TextMeshProUGUI>();
         }
         if (isWin){
             NextButton.interactable = false;
@@ -573,19 +621,22 @@ public class GameManager : MonoBehaviour
             for (int j = 0; j<3; j++){
                 if (PlayerPrefab[j] != null){
                     PlayerObj[j] = Instantiate(PlayerPrefab[j],PanelObjPos[j].transform);
-                    PlayerObj[j].transform.localScale = new Vector2(50f,50f);
+                    PlayerObj[j].transform.localScale = new Vector2(20f,20f);
                     PlayerUnit[j] = PlayerObj[j].GetComponent<Unit>();
-                    SetXPBar();
+                    PanelObjLevelText[j].text = PlayerUnit[j].Level.ToString();
+                    StartCoroutine(SetXPBar(j, LevelXp[LevelNow-1]));
                 } else {
-                    Destroy(PanelObjSliderXP[j]);
+                    Destroy(PanelObjSliderXP[j].gameObject);
+                    Destroy(PanelObjLevelText[j].gameObject);
                 }
             }
-            int LevelNow = PlayerPrefs.GetInt("onLevel");
-            PlayerPrefs.SetInt("levelsUnlocked", (LevelNow + 1));
+            int levelsUnlocked = PlayerPrefs.GetInt("levelsUnlocked");
+            if (levelsUnlocked <= LevelNow) {
+                PlayerPrefs.SetInt("levelsUnlocked", (LevelNow + 1));
+            }
             Reward(LevelNow);
+            SaveProgress();
             yield return new WaitForSeconds(1);
-            NextButton.interactable = true;
-            LevelSelectButton.interactable = true;
         } else {
             PanelResultText.text = "DEFEAT";
             NextButton.interactable = false;
@@ -594,17 +645,79 @@ public class GameManager : MonoBehaviour
             }
         }
         yield return null;
+
+
+        IEnumerator SetXPBar(int identifier, int expGain){
+            int maxXp;
+            maxXp = setMaxXp(PlayerUnit[identifier].Level);
+            PanelObjXpText[identifier].text = PlayerUnit[identifier].exp + "/" + maxXp;
+            PanelObjSliderXP[identifier].maxValue = maxXp;
+            PanelObjSliderXP[identifier].value = PlayerUnit[identifier].exp;
+            int shouldExp = PlayerUnit[identifier].exp + expGain;
+            int overflowExp;
+            if (shouldExp >= maxXp){
+                overflowExp = shouldExp - maxXp;
+                shouldExp = maxXp;
+                yield return StartCoroutine(XpBar(shouldExp, PlayerUnit[identifier].exp));
+                PlayerUnit[identifier].Level += 1;
+                PanelObjLevelText[identifier].text = PlayerUnit[identifier].Level.ToString();
+                PlayerUnit[identifier].exp = 0;
+                maxXp = setMaxXp(PlayerUnit[identifier].Level);
+                yield return StartCoroutine(PlayLevelUpSound());
+                PanelObjSliderXP[identifier].maxValue = maxXp;
+                PanelObjSliderXP[identifier].value = PlayerUnit[identifier].exp;
+                yield return StartCoroutine(XpBar(overflowExp, PlayerUnit[identifier].exp));
+                PlayerUnit[identifier].exp = overflowExp;
+            } else {
+                yield return StartCoroutine(XpBar(shouldExp, PlayerUnit[identifier].exp));
+                PlayerUnit[identifier].exp = shouldExp;
+            }
+            SaveProgress();
+            NextButton.interactable = true;
+            LevelSelectButton.interactable = true;
+
+            IEnumerator PlayLevelUpSound(){
+                LevelUpSound.Play();
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            IEnumerator XpBar(int should, int now){
+                for (int i = now; i<=should;i++){
+                    PanelObjSliderXP[identifier].value = i;
+                    PanelObjXpText[identifier].text = i + "/" + PanelObjSliderXP[identifier].maxValue;
+                    yield return new WaitForSeconds(0.01f);
+                }
+            }
+
+            int setMaxXp(int level){
+                switch (PlayerUnit[identifier].Level)
+                {
+                    case 1:
+                        return 300;
+                    case 2:
+                        return 900;
+                    case 3:
+                        return 2700;
+                    case 4:
+                        return 6500;
+                    case 5:
+                        return 9999;
+                    default:
+                        return 0;
+                }
+            }
+        }
     }
 
-    void SetXPBar(){
-
-    }
+    
 
     void LevelSelectOnButton(){
         SceneManager.LoadScene("LevelSelector",LoadSceneMode.Single);
     }
 
-    void NextLevelOnButton(){
+    void NextLevelOnButton(int LevelNow){
+        PlayerPrefs.SetInt("onLevel", LevelNow+1);
+        SceneManager.LoadScene("Battle", LoadSceneMode.Single);
     }
 
     void Reward(int LevelNow){
@@ -623,6 +736,18 @@ public class GameManager : MonoBehaviour
             case 5:
                 break;
         }
+    }
+
+    void SaveProgress(){
+        for (int i = 0 ; i<3 ; i++){
+            Debug.Log("im here in loop saveprogress");
+            if (PlayerObj[i] != null){
+                Debug.Log("im here in if save progress");
+                PlayerPrefs.SetInt("Level"+PlayerUnit[i].Nama, PlayerUnit[i].Level);
+                PlayerPrefs.SetInt("XP"+PlayerUnit[i].Nama, PlayerUnit[i].exp);
+            }
+        }
+        PlayerPrefs.Save();
     }
 
     void Update(){

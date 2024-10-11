@@ -25,11 +25,10 @@ public class PlayerList : MonoBehaviour
         KembangKolUnit = KembangKol.GetComponent<Unit>();
     }
 
-    void Start(){
+    public void SetPlayerPos(){
         string pos1 = PlayerPrefs.GetString("Pos1", null);
         string pos2 = PlayerPrefs.GetString("Pos2", null);
         string pos3 = PlayerPrefs.GetString("Pos3", null);
-
         if (pos1 == KentangUnit.Nama){
             KentangUnit.partyPosition = 1;
         } else if (pos1 == TomatUnit.Nama){

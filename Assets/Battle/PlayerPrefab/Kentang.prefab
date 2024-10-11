@@ -99,12 +99,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHp: 150
   CurrentHp: 150
-  Attack: 150
+  Attack: 20
   Defense: 20
   Nama: Kentang
   Level: 1
   exp: 0
-  moveName: Harden
+  moveName: 
   movedmg: 50
-  partyPosition: 1
+  partyPosition: 0
   type: Slash

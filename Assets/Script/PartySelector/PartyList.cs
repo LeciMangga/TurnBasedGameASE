@@ -9,6 +9,7 @@ public class PartyList : MonoBehaviour
 
 
     public void playerListDict(){
+        playerlist.SetPlayerPos();
         partyPosLookup = new Dictionary<int, GameObject>();
         AddToDictionary(playerlist.KentangUnit.partyPosition, playerlist.Kentang);
         AddToDictionary(playerlist.TomatUnit.partyPosition, playerlist.Tomat);
